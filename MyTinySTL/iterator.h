@@ -147,6 +147,63 @@ typename iterator_traits<Iterator>::value_type* value_type(const Iterator&)
     return static_cast<typename iterator_traits<Iterator>::value_type*>(0);
 }
 
+// 计算迭代器之间的距离
+// distance 的 input_iterator_tag版本
+template <class InputIterator>
+typename iterator_traits<InputIterator>::difference_type distance_dispatch(InputIterator first, InputIterator last, input_iterator_tag){
+    typename iterator_traits<InputIterator>::difference_type n = 0;
+    while(first != last){
+        ++first;
+        ++n;
+    }
+    return n;
+}
+
+
+// random_access_iterator_tag版本
+template <class RandomIter>
+typename iterator_traits<RandomIter>::difference_type distance_dispatch(RandomIter first, RandomIter last, random_access_iterator_tag){
+    return last - first;
+}
+
+
+// 借助上面实现的两个版本来实现distance函数
+template <class InputIterator>
+typename iterator_traits<InputIterator>::differenct_type distance(InputIterator first, InputIterator last){
+    return distance_dispatch(first,last,iterator_category(first));          // 一个多态
+}
+
+//下面的函数让迭代器前进n个距离
+
+// input_iterator_tag版本
+template <class InputIterator, class distance>
+void advance_dispatch(InputIterator& i , distance n, input_iterator_tag){
+    while(n--){
+        ++i;
+    }
+}
+
+// bidirectional_iterator_tag版本
+template <class BidirectionalIterator, class Distance>
+void advanece_dispatch(BidirectionalIterator& i, Distance n, bidirectional_iterator_tag){
+    if(n >= 0)
+        while(n--) ++i;
+    else
+        while(n++) --i;
+}
+
+// random_access_iterator_tag版本 
+template <class RandomIter, class Distance>
+void advanece_dispatch(RandomIter& i, Distance n, random_access_iterator_tag){
+    i += n;
+}
+
+// 借助上面实现的方法实现advance
+template <class InputIterator, class Distance>
+void advance(InputIterator& i, Distance n){
+    advanece_dispatch(i,n,iterator_category(i));
+}
+
 
 
 }
