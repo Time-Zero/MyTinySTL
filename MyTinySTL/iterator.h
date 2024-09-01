@@ -1,6 +1,8 @@
 #ifndef MYTINYSTL_ITERATOR_H_
 #define MYTINYSTL_ITERATOR_H_
 
+// 迭代器的底层实现，包含迭代器萃取
+
 #include <cstddef>
 #include "type_traits.h"
 
