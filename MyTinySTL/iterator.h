@@ -204,7 +204,143 @@ void advance(InputIterator& i, Distance n){
     advanece_dispatch(i,n,iterator_category(i));
 }
 
+// 反向迭代器
+template <class Iterator>
+class reverse_iterator{
+private:
+    Iterator current;       // 正向迭代器
 
+public:
+    typedef typename iterator_traits<Iterator>::iterator_category   iterator_category;
+    typedef typename iterator_traits<Iterator>::value_type          value_type;
+    typedef typename iterator_traits<Iterator>::difference_type     difference_type;
+    typedef typename iterator_traits<Iterator>::pointer             pointer;
+    typedef typename iterator_traits<Iterator>::reference           reference;
+
+    typedef Iterator                                                iterator_type;
+    typedef reverse_iterator<Iterator>                              self;
+
+public:
+    reverse_iterator(){};
+    explicit reverse_iterator(iterator_type i) : current(i) {};     // 传入参数构造，不允许隐式转换
+    reverse_iterator(const self& rhs) : current(rhs.current) {};        // 拷贝构造函数 
+
+public:
+//  取出对应的正向迭代器
+    iterator_type base() const {
+        return current;
+    }
+
+    // 重载解引用运算符
+    reference operator*() const {
+        auto temp = current;
+        return *--temp;
+    }
+
+    // ->的思路是通过调用解引用返回实例引用，然后再对实例取地址
+    pointer operator->() const {
+        return &(operator*());
+    }
+
+    // ++ 变--
+    self& operator++() {
+        --current;
+        return *this;
+    }
+
+    // int用于区分前置递减和后置递减，这里好像没什么用，但是似乎是必须的
+    self& operator++(int){
+        self temp = *this;
+        --current;
+        return temp;
+    }
+
+    self& operator--(){
+        ++current;
+        return *this;
+    }
+
+    self& operator--(int){
+        self temp = *this;
+        ++current;
+        return temp;
+    }
+
+    self& operator+=(difference_type n){
+        current -= n;
+        return *this;
+    }
+
+    self operator+(difference_type n) const{
+        return self(current-n);
+    }
+
+    self& operator-=(difference_type n){
+        current += n;
+        return *this;
+    }
+
+    self operator-(difference_type n) const{
+        return self(current + n);
+    }
+
+    reference operator[](difference_type n) const{
+        return *(*this + n);
+    }
+    
+};
+
+
+// 重载-运算符,这里应该算是对这个函数的全局重载
+template <class Iterator>
+    typename reverse_iterator<Iterator>::difference_type operator-(
+        const reverse_iterator<Iterator>& lhs, 
+        const reverse_iterator<Iterator>& rhs){
+            
+    return rhs.base() - lhs.base();
+}
+
+template <class Iterator>
+bool operator==(const reverse_iterator<Iterator>& lhs,
+                const reverse_iterator<Iterator>& rhs)
+{
+    return lhs.base() == rhs.base();
+}
+
+template <class Iterator>
+bool operator<(const reverse_iterator<Iterator>& lhs,
+                const reverse_iterator<Iterator>& rhs)
+{
+    return rhs.base() < lhs.base();
+}
+
+template <class Iterator>
+bool operator!=(const reverse_iterator<Iterator>& lhs,
+                const reverse_iterator<Iterator>& rhs)
+{
+    return !(lhs == rhs);
+}
+
+template <class Iterator>
+bool operator>(const reverse_iterator<Iterator>& lhs,
+                const reverse_iterator<Iterator>& rhs)
+{
+    return !(rhs < lhs);
+}
+
+template <class Iterator>
+bool operator<=(const reverse_iterator<Iterator>& lhs,
+                const reverse_iterator<Iterator>& rhs)
+{
+    return !(rhs < lhs);
+}
+
+template <class Iterator>
+bool operator>=(const reverse_iterator<Iterator>& lhs,
+                const reverse_iterator<Iterator>& rhs)
+{
+    return !(lhs < rhs);
+}
 
 }
 #endif
